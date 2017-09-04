@@ -23,6 +23,17 @@
   height: 100%;
 }
 
+#chart-body .title{
+  font-size: 0.3rem;
+  text-align: left;
+  padding-left: 0.5rem;
+}
+
+#chart-body .am-tabs-tab{
+  font-size: 0.1rem;
+  border-left: 1px solid #108ee9;
+}
+
 @keyframes App-logo-spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }

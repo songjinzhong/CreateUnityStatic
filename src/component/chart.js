@@ -4,7 +4,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'r
 import 'whatwg-fetch'
 import moment from 'moment'
 
-const domain = `//127.0.0.1:8080`
+const domain = `//127.0.0.1`
 const TabPane = Tabs.TabPane
 const dateFormat = 'MM-DD HH:mm'
 const x_date = 'mm:ss'
@@ -55,6 +55,7 @@ class Chart extends Component {
           {this._makeMultiTabPane()}
         </Tabs>
         <WhiteSpace />
+        <h2 className='title'>心率&速度</h2>
         <LineChart width={width} height={200} data={lineData}
           margin={{ top: 15, right: 0, left: 0, bottom: 5 }}>
           <XAxis dataKey='index' />
@@ -64,7 +65,20 @@ class Chart extends Component {
           <Tooltip />
           <Legend verticalAlign="top" height={36} />
           <Line type='monotone' dataKey='speed' stroke='#8884d8' name='速度(m/s)' yAxisId='l' unit='m/s' />
-          <Line type='monotone' dataKey='distance' stroke='#82ca9d' name='距离(m)' yAxisId='r' unit='m' />
+          <Line type='monotone' dataKey='heartrate' stroke='#82ca9d' name='心率(次/分)' yAxisId='r' unit='m' />
+        </LineChart>
+        <WhiteSpace />
+        <h2 className='title'>血氧&速度</h2>
+        <LineChart width={width} height={200} data={lineData}
+          margin={{ top: 15, right: 0, left: 0, bottom: 5 }}>
+          <XAxis dataKey='index' />
+          <YAxis yAxisId='l' />
+          <YAxis yAxisId='r' orientation='right' />
+          <CartesianGrid strokeDasharray='3 3' />
+          <Tooltip />
+          <Legend verticalAlign="top" height={36} />
+          <Line type='monotone' dataKey='speed' stroke='#8884d8' name='速度(m/s)' yAxisId='l' unit='m/s' />
+          <Line type='monotone' dataKey='oxygen' stroke='#82ca9d' name='血氧(%)' yAxisId='r' unit='m' />
         </LineChart>
       </div>
     )
@@ -95,10 +109,12 @@ class Chart extends Component {
     const searchUrl = `${domain}/timer/${timer}`
     this._fetch(searchUrl).then(data => {
       const lineData = data.map((value, index) => {
-        const { speed, distance } = value
+        const { speed, distance, heartrate, oxygen  } = value
         return {
           speed,
           distance,
+          heartrate,
+          oxygen,
           index: moment(index * 20 * 1000).format(x_date)
         }
       })
