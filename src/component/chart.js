@@ -4,9 +4,10 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'r
 import 'whatwg-fetch'
 import moment from 'moment'
 
-const domain = `//127.0.0.1`
+const domain = `//192.168.31.208`
 const TabPane = Tabs.TabPane
 const dateFormat = 'MM-DD HH:mm'
+const allDateFormat = 'YYYY-MM-DD HH:mm'
 const x_date = 'mm:ss'
 
 class Chart extends Component {
@@ -16,6 +17,7 @@ class Chart extends Component {
       lineData: [],
       width: 0,
       times: [],
+      date: 0
     }
     this.db = {
       times: [],
@@ -48,37 +50,43 @@ class Chart extends Component {
     })
   }
   render () {
-    const { lineData, width } = this.state
+    const { lineData, width, date } = this.state
+    let sportTimer = ''
+    if (this.db.times.length){
+      sportTimer = moment(this.db.times[date]).format(allDateFormat)
+    } 
     return (
       <div id='chart-body' ref='chart'>
         <Tabs defaultActiveKey='0' onChange={this._onChange} pageSize={5}>
           {this._makeMultiTabPane()}
         </Tabs>
         <WhiteSpace />
+        <h2 className='title-info'>{sportTimer}</h2>
+        <WhiteSpace />
         <h2 className='title'>心率&速度</h2>
         <LineChart width={width} height={200} data={lineData}
           margin={{ top: 15, right: 0, left: 0, bottom: 5 }}>
           <XAxis dataKey='index' />
-          <YAxis yAxisId='l' />
+          <YAxis yAxisId='l' domain={[0, 2]} />
           <YAxis yAxisId='r' orientation='right' />
           <CartesianGrid strokeDasharray='3 3' />
           <Tooltip />
           <Legend verticalAlign="top" height={36} />
-          <Line type='monotone' dataKey='speed' stroke='#8884d8' name='速度(m/s)' yAxisId='l' unit='m/s' />
-          <Line type='monotone' dataKey='heartrate' stroke='#82ca9d' name='心率(次/分)' yAxisId='r' unit='m' />
+          <Line type='monotone' dataKey='speed' stroke='#8884d8' name='速度(m/s)' yAxisId='l' unit='' />
+          <Line type='monotone' dataKey='heartrate' stroke='#82ca9d' name='心率(次/分)' yAxisId='r' unit='' />
         </LineChart>
         <WhiteSpace />
         <h2 className='title'>血氧&速度</h2>
         <LineChart width={width} height={200} data={lineData}
           margin={{ top: 15, right: 0, left: 0, bottom: 5 }}>
           <XAxis dataKey='index' />
-          <YAxis yAxisId='l' />
-          <YAxis yAxisId='r' orientation='right' />
+          <YAxis yAxisId='l' domain={[0, 2]} />
+          <YAxis yAxisId='r' orientation='right' domain={[0, 100]} />
           <CartesianGrid strokeDasharray='3 3' />
           <Tooltip />
           <Legend verticalAlign="top" height={36} />
-          <Line type='monotone' dataKey='speed' stroke='#8884d8' name='速度(m/s)' yAxisId='l' unit='m/s' />
-          <Line type='monotone' dataKey='oxygen' stroke='#82ca9d' name='血氧(%)' yAxisId='r' unit='m' />
+          <Line type='monotone' dataKey='speed' stroke='#8884d8' name='速度(m/s)' yAxisId='l' unit='' />
+          <Line type='monotone' dataKey='oxygen' stroke='#82ca9d' name='血氧(%)' yAxisId='r' unit='' />
         </LineChart>
       </div>
     )
@@ -104,6 +112,9 @@ class Chart extends Component {
   }
   _onChange = (value) => {
     this._getLineData(this.db.times[value])
+    this.setState({
+      date: value
+    })
   }
   _getLineData = (timer) => {
     const searchUrl = `${domain}/timer/${timer}`
@@ -115,7 +126,7 @@ class Chart extends Component {
           distance,
           heartrate,
           oxygen,
-          index: moment(index * 20 * 1000).format(x_date)
+          index: moment(index * 5 * 1000).format(x_date)
         }
       })
       this.setState({
