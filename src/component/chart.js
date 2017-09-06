@@ -17,7 +17,8 @@ class Chart extends Component {
       lineData: [],
       width: 0,
       times: [],
-      date: 0
+      date: 0,
+      score: 0
     }
     this.db = {
       times: [],
@@ -36,7 +37,6 @@ class Chart extends Component {
       data.sort((a, b) => {
         return b - a
       })
-      data.splice(10)
       const tabPanes = data.map(v => {
         return moment(v).format(dateFormat)
       })
@@ -50,7 +50,7 @@ class Chart extends Component {
     })
   }
   render () {
-    const { lineData, width, date } = this.state
+    const { lineData, width, date, score } = this.state
     let sportTimer = ''
     if (this.db.times.length){
       sportTimer = moment(this.db.times[date]).format(allDateFormat)
@@ -62,6 +62,7 @@ class Chart extends Component {
         </Tabs>
         <WhiteSpace />
         <h2 className='title-info'>{sportTimer}</h2>
+        <h2 className='title-scroes'>你本次的运动评分{score}</h2>
         <WhiteSpace />
         <h2 className='title'>心率&速度</h2>
         <LineChart width={width} height={200} data={lineData}
@@ -129,8 +130,16 @@ class Chart extends Component {
           index: moment(index * 5 * 1000).format(x_date)
         }
       })
+      let allHeartrate  = 0
+      lineData.forEach(v => {
+        allHeartrate += v.heartrate
+      })
+      const midHeartrate = parseInt(allHeartrate / lineData.length)
+      let score = (1 - Math.abs(midHeartrate - 80) / 80)
+      score = parseInt(Math.max(0, score) * 100)
       this.setState({
-        lineData
+        lineData,
+        score
       })
     }, err => {
       Toast.info(err)
